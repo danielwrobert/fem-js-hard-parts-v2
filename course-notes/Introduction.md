@@ -1,4 +1,4 @@
-# Introduction
+# Section 1: Introduction
 
 In this course we cover 5 key areas of JavaScript:
 

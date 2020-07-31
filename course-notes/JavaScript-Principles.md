@@ -1,4 +1,4 @@
-# JavaScript Principles
+# Section 2: JavaScript Principles
 
 ## Example
 
