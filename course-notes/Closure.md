@@ -69,7 +69,7 @@ function outer (){
 outer();
 ```
 
-Let's have a walk through the above function line-by-line:
+Let's have a walk-through the above function line-by-line:
 
 1. Define the function with the label `outer` and save it to Global memory.
 1. Call `outer()`, create a new execution context for it, and add the function to the call stack.
@@ -81,9 +81,75 @@ Let's have a walk through the above function line-by-line:
 	1. JavaScript looks for `counter` in the Local Memory / Execution Context (in `incrementCounter`) first.
 	1. When it does not find `counter` there, it then looks to the next parent Execution Context (in `outer`) and finds it there in that parent function's Local Memory.
 
-
 Here's a visual example of the above execution:
 
 ![Nested Function Scope Example](./images/Nested-Function-Scope.jpg)
 
 The key takeaway is that where you define your functions determines what data it has access to when you call it.
+
+## Retaining Function Memory
+
+Now we take a look at calling a function outside of the function call in which it was defined. This will illustrate how function memory is treated/retained.
+
+```
+function outer (){
+	let counter = 0;
+	function incrementCounter () { counter ++; }
+	return incrementCounter;
+}
+const myNewFunction = outer();
+myNewFunction();
+myNewFunction();
+```
+
+Let's have our usual walk-through the above function line-by-line:
+
+1. Define the function with the label `outer` and save it to Global memory.
+1. Define a new constant with the label `myNewFunction`, assign it to the return value of the invocation of `outer()` (we don't have that value just yet), and save it to Local Memory.
+1. Call `outer()`, create a new execution context for it, and add the function to the call stack.
+1. Enter the new execution context for `myNewFunction`.
+1. Define a new variable with the label `counter`, set the value to `0`, and save it to Local Memory.
+1. Define a function with the label `incrementCouter` and save it to Local Memory.
+1 Return the entire function (_value_) with the label `incrementCounter` out to the Global Execution Context and assign back to the `myNewFunction` label.
+1. `outer()` is then popped off of the Call Stack (pop is a fancy word for removed and push is a fancy word for added).
+1. Call `myNewFunction()`, create a new execution context for it, and add the function to the call stack. At this point, `myNewFunction` label essentially contains the following code: `function() { counter++; }`.
+1. Inside of the (now named) `myNewFunction` function (formly known as `incrementCounter` from inside `outer`), we run `counter++` to increment the counter value.
+	1. JavaScript looks for `counter` in the Local Memory / Execution Context (in `incrementCounter`) first.
+	1. When it does not find `counter` there, before it moves up to the parent/containing function's Execution Context, it looks in it's "backpack" of memory (see below) that it took with it when it was defined inside of `incrementCounter` and returned out. When a function is defined, it gets a bond to the surrounding Local Memory (“Variable Environment”) in which it has been defined. It still has access to that data and it brings it out with it into Global Memory to persist and live there. Forever and ever and ever.
+	1. Now, in our Global (scoped) memory that lives in the "backpack" of the label that is globally stored as `myNewFunction`, the `counter` label is now set to the value of `1`.
+1. `myNewFunction()` is then popped off of the Call Stack 
+1. Call `myNewFunction()` once more, create a new execution context for it, and add the function to the call stack.
+1. Inside of the subsequent call to `myNewFunction` function (formly known as `incrementCounter` from inside `outer`), we run `counter++` to increment the counter value once again.
+	1. JavaScript again looks for `counter` in the Local Memory / Execution Context (in `incrementCounter`) first.
+	1. When it does not find `counter` there, before it moves up to the parent/containing function's Execution Context, it looks in it's "backpack" of memory (see below) that it took with it when it was defined inside of `incrementCounter` and returned out. 
+	1. Now, in our Global (scoped) memory that lives in the "backpack" of the label that is globally stored as `myNewFunction`, the `counter` label is now set to the value of `2`.
+1. The secont call to `myNewFunction()` is then popped off of the Call Stack.
+
+**The bond**
+
+When a function is defined, it gets a bond to the surrounding Local Memory (“Variable Environment”) in which it has been defined. This is live data at this point.
+
+**The ‘backpack’**
+
+In our example above, we return incrementCounter’s code (function definition) out of outer into global and give it a new name - `myNewFunction`. We maintain the bond to outer’s live local memory - it gets ‘returned out’, attached on the back of `incrementCounter`’s function definition.
+
+So outer’s local memory is now stored attached to `myNewFunction` - even though outer’s execution context is long gone. When we run `myNewFunction` in global, it will first look in its own local memory first (as we’d expect), but then in `myNewFunction`’s ‘backpack’.
+
+**What can we call this ‘backpack’?**
+
+There are a few names that are used to refer to this feature:
+
+- Closed over ‘Variable Environment’ (C.O.V.E.)
+- Persistent Lexical Scope Referenced Data (P.L.S.R.D.)
+- ‘Backpack’
+- ‘Closure’
+
+The ‘backpack’ (or ‘closure’) of live data is attached incrementCounter (then to `myNewFunction`) through a hidden property known as `[[scope]]` (hidden properties are always surrounded by the double brackets). This hidden property links to where all of the surrounding "backpack" data is stored and it is still attached when the inner function is returned out and given it's new Global label.
+
+When we search for some bit of data in our Local Scope that is note there, this property interceeds and we then look there before moving out to the next level up in Execution Context / Memory. This data persists - it isn't removed like an Execution Context's temporary memory - it permanently sticks around, as long as the function definition it is attached to is not overwritten. Permanent and Private memory.
+
+The only way we can access it, however, is by running the function it is attached to (via it's backpack) and hoping that function was written in a way when it was defined that if it looks for something that does not exist in Local Memory, it will look to the `[[scope]]` property (on the backpack). We can not access this `[[scope]]` property directly.
+
+Here's a visual example of the above execution:
+
+![Retaining Function Memory](./images/Retaining-Function-Memory.jpg)
