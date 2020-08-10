@@ -16,22 +16,28 @@ const newOutput = multiplyBy2(10);
 
 **execution/memory**
 
-1. define constant `num` and assign it the value of `3`.
-2. define function `multiplyBy2()`. When we define a function, there is two parts:
+Let's have a walk-through the above function line-by-line:
+
+1. Define constant `num` and assign it the value of `3`.
+2. Define function `multiplyBy2()`. When we define a function, there is two parts:
 	a. define the label/identifier
 	b. store all of the code in the function into memory (we do not execute anything at this point)
-3. define constant `output` and assign it the value returned by `multiplyBy2(num)`.
-4. execute `multiplyBy2(num)`, creating a new Execution Context for that function block. Inside that new Execution Context, we:
-	a. assign `inputNumber` the value of `3`. (`inputNumber` is the placeholder and is referred to as a "Parameter". `3` is the data that gets passed in to that placeholder and is called an "Argument". These two things are fundamentally different things. One is a label and one is the thing that is stored in that label.)
-	b. define constant `result` and assign it the value of the operaton on the right hand side - which is executed and evaluates to `6`.
-	c. in our local memory, look up (or locate) the data stored with the label `result` and return it (ship it out of the functions Local Execution Context into the Global Execution Context). This function execution ultimately evaluates to the value returned in `result` - in this case, `6`.
-5. assign the returned value of `6` to `output`.
-6. define constant `newOutput` and assign it the value returned by `multiplyBy2(10)`.
-7. repeat step 6 for the new function call. execute `multiplyBy2(10)`, creating a new Execution Context for that function block. Inside that new Execution Context, we:
-	a. assign `inputNumber` the value of `10`.
-	b. define constant `result` and assign it the value of the operaton on the right hand side - which is executed and evaluates to `20`.
-	c. in our local memory, look up (or locate) the data stored with the label `result` and return it (ship it out of the functions Local Execution Context into the Global Execution Context). This function execution ultimately evaluates to the value returned in `result` - in this case, `20`.
-8. assign the returned value of `20` to `newOutput`.
+3. Define constant `output` and assign it the value returned by `multiplyBy2(num)`. Before we get the returned value from `multiplyBy2(num)`, that constant's value will be "uninitialized".
+4. Execute `multiplyBy2(num)`, creating a new Execution Context for that function block. Inside that new Execution Context, we:
+	a. Assign `inputNumber` the value of `3`. (`inputNumber` is the placeholder and is referred to as a "Parameter". `3` is the data that gets passed in to that placeholder and is called an "Argument". These two things are fundamentally different things. One is a label and one is the thing that is stored in that label.)
+	b. Define constant `result` and assign it the value of the operaton on the right hand side - which is executed and evaluates to `6`.
+	c. In our local memory, look up (or locate) the data (_value_) stored with the label `result` and return it (ship it out of the functions Local Execution Context into the Global Execution Context). This function execution ultimately evaluates to the _value_ returned in `result` - in this case, `6`.
+5. Assign the returned value of `6` to `output`.
+6. Define constant `newOutput` and assign it the value returned by `multiplyBy2(10)`.
+7. Repeat step 6 for the new function call. execute `multiplyBy2(10)`, creating a new Execution Context for that function block. Inside that new Execution Context, we:
+	a. Assign `inputNumber` the value of `10`.
+	b. Define constant `result` and assign it the value of the operaton on the right hand side - which is executed and evaluates to `20`.
+	c. In our local memory, look up (or locate) the data stored with the label `result` and return it (ship it out of the functions Local Execution Context into the Global Execution Context). This function execution ultimately evaluates to the value returned in `result` - in this case, `20`.
+8. Assign the returned value of `20` to `newOutput`.
+
+Here's the visual example of the above execution:
+
+![Single Threaded Execution](./images/Single-Threaded-Execution.jpg)
 
 ## Thread of Execution
 
