@@ -226,4 +226,3 @@ That's pretty rough. And that's what created something known as callback hell, w
 
 [Exercise Challenge](csbin.io/async)
 [Exercise Solution](https://github.com/CodesmithLLC/cs-bin-solutions/blob/master/async.js)
-
