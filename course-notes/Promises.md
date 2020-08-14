@@ -27,8 +27,7 @@ An example of one of these "Two-Pronged Facade Functions" is the `fetch()` funct
 
 This is how we can know what is going on in the Web Browser work because we're keeping it up-to-date in the Promise Object in memory.
 
-
-### Promises Example
+## Promises Example: Fetch
 
 ```
 function display(data){
@@ -39,3 +38,28 @@ futureData.then(display);
 
 console.log("Me first!");
 ```
+
+1. Define function `display()` with the parameter `data`.
+1. Define constant `futureData` and set it to the return value of the `fetch()` call. It is initially "unitialized" but this tells us that the `fetch` call on the right hand side, the facade function that triggers stuff in the background, it must also do something in JavaScript. Because the result of it in JavaScript at that moment is stored on the left hand side. So it must be two pronged in some way - two consequences.
+	- The `fetch` function is a facade function - not an actual native JavaScript function. It will do some JS work for us automatically but it will also do some background work in the Web Browser.
+	- It will immediately return out a Promise object. It's just an object that is automatically created by `fetch`.
+	- The Promise Object has 2 properties:
+		1. `value`, which is initally undefined
+		2. `onFulfilled`, which is hidden but super important - it is an empty array, initially.
+	- The _other_ consequence of the `fetch` function takes place in the Web Browser - which is to actually make the network call to the API and get the requested data.
+	- When the background task completes, the data that is returned is placed into the `value` property of the Promise Object.
+
+---
+
+1. At 0ms, Call/execute `setTimeout` - which is a label for the Timer feature from the Web Browser (nothing to do with JS - technically it does have a return value in JS but that's just an ID for the timer).
+	1. Needs a duration (`1000ms`) to be a successful timer.
+	1. On completion (callback) will run `printHello`.
+1. At 1ms, call `console.log("Me first!")` - technically `console` is a web browser feature as well.
+1. At 1000ms, execute `printHello` and add it to the Call Stack.
+	1. Call `console.log("Hello")`.
+	1. Pop `printHello` off of the Call Stack.
+
+
+Here's the visual example of the above execution:
+
+![Web API Example](./images/Web-API-Example.jpg)
