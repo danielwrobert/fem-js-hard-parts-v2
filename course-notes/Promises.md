@@ -143,3 +143,80 @@ Here's the visual example of the above execution:
 
 ## Promises and Asynchronous Q & A
 
+Q: How does JS know when we can access the data from the network request response object?
+A: Behind the scenes, the `value` and the `onFulfilled` properties aren't populated until all of the synchronous code is run. We can't even access it if we wanted to - in that way, it's not all that different from the Callback model. It all happens, in reality, at the very last moment before the Event Loop starts going through the queues.
+
+Q: Is the `printHello` fn we're dealing with in the Web Browser API/feature a reference to the Globally defined function?
+A: Yes, we're not passing in the actual function definition itself to the Web Browser features, it's just referencing the funcion by that label.
+
+- [MDN Documentation](https://developer.mozilla.org/en-US/docs/Web/API) for referencing how the browser is expecting the functions that will be auto-run to be called. MDN has got a list of all these features. They don't call these facade functions. They call them API is a it stands for interface - that is any functionality or often data that's not in our world, but in someone else's and I interface with it. These are our labels by which I can interface interact with this outside world.
+
+- We can create our own Promise objects directly, we don't necessarily need to rely on a function like `fetch`. When we create one directly, we can also resolve it manually and control when that Promise object is populated with the data. We can't do that with `fetch` because `fetch` is handling the relationship.
+
+Here's a really interesting scenario: If, when I'm running the function that was in my Microtask Queue (which was `display` in the above example) - if inside of there I create a brand new promise object whose associated function while I was inside `display` - that Promise object completed (because I told it to directly), the associated function will be stuck into the backend of Microtask Queue, while I'm still inside `display`.
+
+Here's a really interesting situation that can happen then. I can be filling in the back of the Microtask Queue with more functions while I'm still inside display.
+
+And the Event Loop is interesting and how it interacts with the Microtask Queue - If, while I'm inside `display`, I'm filling in new functions behind here and they themselves are filling in new functions, and then those are filling in new functions almost recursively, I will never leave the Microtask Queue because the Event Loop will always take in and execute on the Call Stack - it will always go back and check the Microtask Queue before it moves on to the Callback Queue.
+
+That is in distinction to the Callback Queue which once it enters does all the stuff in there and then moves round again. The Microtask Queue once it enters, if you are refilling in the back, you ain't leaving it. You get what's called "starve the Callback Queue".
+
+In Node, this is particularly important because you're likely working with a production application. And this is why there's some caution around around using the process.next tick method, which sticks stuff in this queue, and can recursively starve you handling your requests from your users.
+
+This is a very, very big bonus. If you go to Node - The Hard Parts, we go into some more detail. We're not going to worry too much about this here.
+
+Q: What items go into the Microtask Queue and what functions go into the Callback Queue?
+A: Any function that is attached to a promise object by one of these two pronged facade functions goes into the Microtask Queue. Any function that's passed in directly to a facade function that triggers a web browser feature goed into the Callback Queue when it completes.
+
+So we have to go into MDN and see, does our particular facade function that trigger stuff in the background -does it take in a function? That one's going to go into the Callback Queue.
+
+Or does it return out, two pronged, a Promise Object and a task to the background but doesn't throw a function down to the Web Browser Features? That one will go to the Microtask Queue.
+
+# Promises Review
+
+**Problems**
+
+- 99% of developers have no idea how they’re working under the hood
+- Debugging becomes super-hard as a result
+- Developers fail technical interviews
+
+**Benefits**
+- Cleaner readable style with pseudo-synchronous style code
+- Nice error handling process
+
+
+The upside of this Promises model style is it creates something that sort of means if you don't understand how it's working, you can roughly make it kind of work. I will say about the old style where you literally pass a function in, if you don't understand how it's working, you're kinda done.
+
+With this style, because of this appearance, the `then` method you kind of think you know what it's doing and it kind of works but, really, I hate this name, `then`. It's doing nothing - if I'm reading this code as a developer I'm like, "okay, so fetching and then I'm gonna display." But of course, it's not even close.
+
+I think it should be renamed to "Store Function to Run Later" - or something more explicit and relevant to what is actually happening.
+
+The other really big benefit of this design that we haven't covered yet is the Error Handling Process. As it turns out, there's actually another array on this promise object behind the scenes, another hidden property. It's called `onRjection`, and it's also an array into which we can put functions.
+
+When you're interacting with the outside world, especially network stuff, you get errors all the time. You don't wanna run your display functions so the user on Twitter gets a lovely broadcast of the full details of the error.
+
+Ideally wanna have a separate function that's going to run that handles that error. Maybe it logs it for you in some way, but probably just gives the user a better experience.
+
+So how does this work?
+
+If we get an error back - not the actual response object we want - any error, it's not gonna aut-trigger any of your functions in `onFulfilled`. Instead, it's gonna trigger any functions that you stored in `onRejection`. So how do we get functions in there?
+
+There are actually two ways to do this:
+
+1. One is to use the `.catch()` method - just like the `.then()` method - so `futureData.catch`, for example. This will take in any functions we want to pass into the `onRejecton` array.
+1. The other approach is to pass, as a second argument to `.then()` any function you wan to pass into the `onRejection` array - so the first argument will go to the `onFulfilled` array and the second argument will go to the `onRejection` array.
+
+### We have rules for the execution of our asynchronously delayed code
+
+Hold promise-deferred functions in a microtask queue and callback functions in a task queue (Callback queue) when the Web Browser Feature (API) finishes.
+
+Add the function to the Call stack (i.e. run the function) when:
+- Call stack is empty & all global code run (Have the Event Loop check this condition)
+
+Prioritize functions in the microtask queue over the Callback queue.
+
+### Promises, Web APIs, the Callback & Microtask Queues and Event loop enable:
+
+**Non-blocking applications:** This means we don’t have to wait in the single thread and don’t block further code from running
+**However long it takes:** We cannot predict when our Browser feature’s work will finish so we let JS handle automatically running the function on its completion
+**Web applications:** Asynchronous JavaScript is the backbone of the modern web - letting us build fast ‘non-blocking’ applications
