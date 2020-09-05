@@ -145,7 +145,6 @@ When any function, object, or array is defined and saved to memory, if it is use
 
 That is why we don't want to make changes to and manipulate the data we pass in because that would be changing the global data, making it hard to predict what's then gonna happen with that function.
 
-
 This is what is referred to as a Side Effect.
 
 Instead, it is better to create a brand new Array (or Object or Function) and make our adjustments to that new Array. This way, our input Array stays unmutated / unchanged.
